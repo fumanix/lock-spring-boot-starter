@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: lock-starter
+  lock:
+    type: redisson
+    redisson:
+      model: single
+      address: 127.0.0.1:6379
+      password: 123456
+      database: 15
+      connection-pool-size: 200
+      netty-threads: 64
+    connect-timeout: 1000

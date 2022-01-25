@@ -1,0 +1,67 @@
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+group = 'com.fumanix.framework'
+sourceCompatibility = 1.8
+
+jar {
+    archiveBaseName = "lock-spring-boot-starter"
+}
+
+repositories {
+    maven { url 'http://maven.fumanix.com/nexus/content/groups/public/' }
+    maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+}
+
+ext {
+    springBootVersion = '2.6.3'
+    redissonVersion = '3.16.8'
+}
+
+dependencies {
+    implementation "org.apache.commons:commons-lang3:3.12.0"
+    implementation "org.redisson:redisson:${redissonVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-aop:${springBootVersion}"
+    implementation "org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}"
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier = 'sources'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            afterEvaluate {
+                artifactId = jar.archiveBaseName
+                version = "${version}"
+                artifact (sourcesJar)
+            }
+            pom {
+                developers {
+                    developer {
+                        name = 'fumanix'
+                        email = 'icyfumanix@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            credentials {
+                username = "${nexusUsername}"
+                password = "${nexusPassword}"
+            }
+            if (project.version.endsWith('-SNAPSHOT')) {
+                url "http://maven.fumanix.com/nexus/content/repositories/snapshots"
+            } else {
+                url "http://maven.fumanix.com/nexus/content/repositories/releases"
+            }
+        }
+    }
+}
